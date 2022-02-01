@@ -1,4 +1,5 @@
 *.o
+*.obj
 *.elf
 *.efi
 *.iso
