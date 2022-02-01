@@ -1,3 +1,3 @@
 extern(C)
-void uefi_main() {
+void efi_main() {
 }
