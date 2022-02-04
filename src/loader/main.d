@@ -3,9 +3,11 @@ import efi;
 
 extern(C):
 
-EFI_SYSTEM_TABLE* gST;
-EFI_BOOT_SERVICES* gBS;
-EFI_RUNTIME_SERVICES* gRT;
+__gshared {
+  EFI_SYSTEM_TABLE* gST;
+  EFI_BOOT_SERVICES* gBS;
+  EFI_RUNTIME_SERVICES* gRT;
+}
 
 EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   EFI_STATUS status;
