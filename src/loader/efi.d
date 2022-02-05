@@ -179,9 +179,6 @@ alias EFI_IMAGE_START = EFI_STATUS function(
   wchar** ExitData);
 alias EFI_IMAGE_UNLOAD = EFI_STATUS function(
   EFI_HANDLE ImageHandle);
-alias EFI_IMAGE_ENTRY_POINT = EFI_STATUS function(
-  EFI_HANDLE ImageHandle,
-  EFI_SYSTEM_TABLE* SystemTable);
 alias EFI_EXIT = EFI_STATUS function(
   EFI_HANDLE ImageHandle,
   EFI_STATUS ExitStatus,
