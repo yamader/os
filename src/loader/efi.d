@@ -1,4 +1,4 @@
-module efi;
+module loader.efi;
 
 extern(C):
 

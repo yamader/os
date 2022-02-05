@@ -1,5 +1,6 @@
-module main;
-import efi;
+module loader.main;
+import lib.memmap;
+import loader.efi;
 
 extern(C):
 
@@ -9,6 +10,10 @@ __gshared {
   EFI_RUNTIME_SERVICES* gRT;
 }
 
+void Halt() {
+  while(true) asm { hlt; }
+}
+
 EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   EFI_STATUS status;
 
@@ -16,10 +21,11 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   gBS = gST.BootServices;
   gRT = gST.RuntimeServices;
 
-  gST.ConOut.OutputString(gST.ConOut, cast(wchar*)"hello, world (from Dlang)"w);
+  status = gST.ConOut.OutputString(gST.ConOut, cast(wchar*)"hello, world (from Dlang)"w);
   if(EFI_ERROR(status)) {
     return status;
   }
 
-  while(true) asm { hlt; }
+  Halt();
+  return Status.EFI_SUCCESS;
 }
