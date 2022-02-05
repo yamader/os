@@ -8,13 +8,12 @@ extern(C):
 alias INTN  = long;
 alias UINTN = ulong;
 //
-alias EFI_STATUS = UINTN;
 alias EFI_HANDLE = void*;
 alias EFI_EVENT = void*;
 alias EFI_LBA = ulong;
 alias EFI_TPL = UINTN;
 
-enum Status {
+enum EFI_STATUS {
   EFI_SUCCESS = 0uL,
   EFI_LOAD_ERROR = 1uL<<63| 1,
   EFI_INVALID_PARAMETER,

@@ -27,5 +27,5 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   }
 
   Halt();
-  return Status.EFI_SUCCESS;
+  return EFI_STATUS.EFI_SUCCESS;
 }
