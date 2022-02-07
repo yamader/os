@@ -3,3 +3,6 @@
 *.elf
 *.efi
 *.iso
+*.img
+*.bak
+/dist
