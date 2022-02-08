@@ -45,7 +45,7 @@ ${LOADER_PATH}: ${LOADER_SRC}
 clean:
 	rm -f ${TARGET}
 	rm -rf ${WORK_DIR}
-	${MAKE} ${MAKEOPTS} -C ${KERNEL_SRC} clean
-	${MAKE} ${MAKEOPTS} -C ${LOADER_SRC} clean
+	${MAKE} ${MAKEFLAGS} -C ${KERNEL_SRC} clean
+	${MAKE} ${MAKEFLAGS} -C ${LOADER_SRC} clean
 
 .PHONY: all run clean

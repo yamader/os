@@ -9,7 +9,7 @@ OBJS        := main.obj efi.obj
 
 all: ${TARGET}
 
-${TARGET}: ${OBJS} makefile
+${TARGET}: ${OBJS} Makefile
 	${LD} ${LDFLAGS} -o $@ ${OBJS}
 
 %.obj: %.d
