@@ -68,6 +68,7 @@ bool EFI_ERROR(EFI_STATUS status) {
 alias EFI_TABLE_HEADER = byte[24];
 
 struct EFI_SYSTEM_TABLE {
+align(1):
   EFI_TABLE_HEADER Hdr;
   wchar* FirmwareVendor;
   uint FirmwareRevision;
@@ -82,7 +83,9 @@ struct EFI_SYSTEM_TABLE {
   UINTN NumberOfTableEntries;
   void* buf12;
 }
+
 struct EFI_BOOT_SERVICES {
+align(1):
   EFI_TABLE_HEADER Hdr;
   void* buf1,buf2;
   EFI_ALLOCATE_PAGES AllocatePages;
@@ -101,7 +104,9 @@ struct EFI_BOOT_SERVICES {
   EFI_SET_MEM SetMem;
   void* buf43;
 }
+
 struct EFI_RUNTIME_SERVICES {
+align(1):
   EFI_TABLE_HEADER Hdr;
   void* buf1,buf2,buf3,buf4,buf5,buf6,buf7,buf8,buf9,buf10;
   EFI_RESET_SYSTEM ResetSystem;
@@ -118,6 +123,7 @@ enum EFI_ALLOCATE_TYPE {
   AllocateAddress,
   MaxAllocateType
 }
+
 enum EFI_MEMORY_TYPE {
   EfiReservedMemoryType,
   EfiLoaderCode,
@@ -139,6 +145,7 @@ enum EFI_MEMORY_TYPE {
 }
 
 struct EFI_MEMORY_DESCRIPTOR {
+align(1):
   uint Type;
   EFI_PHYSICAL_ADDRESS PhysicalStart;
   ulong NumberOfPages;
@@ -150,21 +157,26 @@ alias EFI_ALLOCATE_PAGES = EFI_STATUS function(
   EFI_MEMORY_TYPE MemoryType,
   UINTN Pages,
   EFI_PHYSICAL_ADDRESS* Memory);
+
 alias EFI_FREE_PAGES = EFI_STATUS function(
   EFI_PHYSICAL_ADDRESS Memory,
   UINTN Pages);
+
 alias EFI_GET_MEMORY_MAP = EFI_STATUS function(
   UINTN* MemoryMapSize,
   EFI_MEMORY_DESCRIPTOR* MemoryMap,
   UINTN* MapKey,
   UINTN* DescriptorSize,
   uint* DescriptorVersion);
+
 alias EFI_ALLOCATE_POOL = EFI_STATUS function(
   EFI_MEMORY_TYPE PoolType,
   UINTN Size,
   void** Buffer);
+
 alias EFI_FREE_POOL = EFI_STATUS function(
   void* Buffer);
+
 alias EFI_IMAGE_LOAD = EFI_STATUS function(
   bool BootPilicy,
   EFI_HANDLE ParentImageHandle,
@@ -172,24 +184,30 @@ alias EFI_IMAGE_LOAD = EFI_STATUS function(
   void* SourceBuffer,
   UINTN SourceSize,
   EFI_HANDLE* ImageHandle);
+
 alias EFI_IMAGE_START = EFI_STATUS function(
   EFI_HANDLE ImageHandle,
   UINTN* ExitDataSize,
   wchar** ExitData);
+
 alias EFI_IMAGE_UNLOAD = EFI_STATUS function(
   EFI_HANDLE ImageHandle);
+
 alias EFI_EXIT = EFI_STATUS function(
   EFI_HANDLE ImageHandle,
   EFI_STATUS ExitStatus,
   UINTN ExitDataSize,
   wchar* ExitData);
+
 alias EFI_EXIT_BOOT_SERVICES = EFI_STATUS function(
   EFI_HANDLE ImageHandle,
   UINTN MapKey);
+
 alias EFI_COPY_MEM = void function(
   void* Destination,
   void* Source,
   UINTN Length);
+
 alias EFI_SET_MEM = void function(
   void* Buffer,
   UINTN Size,
@@ -213,6 +231,7 @@ alias EFI_RESET_SYSTEM = void function(
 // Device Path Protocol
 
 struct EFI_DEVICE_PATH_PROTOCOL {
+align(1):
   ubyte Type;
   ubyte SubType;
   ubyte[2] Length;
@@ -221,15 +240,20 @@ struct EFI_DEVICE_PATH_PROTOCOL {
 // Console Support
 
 struct EFI_SIMPLE_TEXT_INPUT_PROTOCOL {
+align(1):
   EFI_INPUT_RESET Reset;
   EFI_INPUT_READ_KEY ReadKeyStroke;
   EFI_EVENT WaitForKey;
 }
+
 struct EFI_INPUT_KEY {
+align(1):
   ushort ScanCode;
   wchar UnicodeChar;
 }
+
 struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
+align(1):
   EFI_TEXT_RESET Reset;
   EFI_TEXT_STRING OutputString;
   void* buf2,buf3,buf4,buf5;
@@ -238,7 +262,9 @@ struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
   EFI_TEXT_ENABLE_CURSOR EnableCursor;
   SIMPLE_TEXT_OUTPUT_MODE* Mode;
 }
+
 struct SIMPLE_TEXT_OUTPUT_MODE {
+align(1):
   int MaxMode;
   int Mode;
   int Attribute;
@@ -250,21 +276,26 @@ struct SIMPLE_TEXT_OUTPUT_MODE {
 alias EFI_INPUT_RESET = EFI_STATUS function(
   EFI_SIMPLE_TEXT_INPUT_PROTOCOL* This,
   bool ExtendedVerfication);
+
 alias EFI_INPUT_READ_KEY = EFI_STATUS function(
   EFI_SIMPLE_TEXT_INPUT_PROTOCOL* This,
   EFI_INPUT_KEY* Key);
+
 alias EFI_TEXT_RESET = EFI_STATUS function(
   EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL* This,
   bool ExtendedVerfication);
+
 alias EFI_TEXT_STRING = EFI_STATUS function(
   EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL* This,
   wchar* String);
+
 alias EFI_TEXT_CLEAR_SCREEN = EFI_STATUS function(
   EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL* This);
 alias EFI_TEXT_SET_CURSOR_POSITION = EFI_STATUS function(
   EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL* This,
   UINTN Column,
   UINTN Row);
+
 alias EFI_TEXT_ENABLE_CURSOR = EFI_STATUS function(
   EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL* This,
   bool Visible);
