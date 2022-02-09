@@ -1,4 +1,5 @@
 module loader.main;
+import lib.elf;
 import lib.memmap;
 import loader.efi;
 
