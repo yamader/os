@@ -6,9 +6,9 @@ import loader.efi;
 extern(C):
 
 __gshared {
-  EFI_SYSTEM_TABLE* gST;
-  EFI_BOOT_SERVICES* gBS;
-  EFI_RUNTIME_SERVICES* gRT;
+  EFI_SYSTEM_TABLE* gST = void;
+  EFI_BOOT_SERVICES* gBS = void;
+  EFI_RUNTIME_SERVICES* gRT = void;
 }
 
 void Halt() {
@@ -16,7 +16,7 @@ void Halt() {
 }
 
 EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
-  EFI_STATUS status;
+  EFI_STATUS status = void;
 
   gST = SystemTable;
   gBS = gST.BootServices;
