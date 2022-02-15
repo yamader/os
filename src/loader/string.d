@@ -1,13 +1,13 @@
 module loader.string;
 
-int sprintf(T...)(size_t buf_s, char[buf_s] buf_a, string fmt_a, T args) {
-  char* buf = buf_a.ptr,
-        fmt = fmt_a.ptr;
+int sprintf(C, T...)(C[] buf_a, immutable(C)[]fmt_a, T args) {
+  C* buf = buf_a.ptr,
+     fmt = cast(C*)fmt_a.ptr;
   int len = 0;
 
   foreach(arg; args) {
     bool zeroflag;
-    byte width;
+    int width;
     format: while(*fmt) {
       if(*fmt != '%') {
         *buf++ = *fmt++;
@@ -41,6 +41,9 @@ int sprintf(T...)(size_t buf_s, char[buf_s] buf_a, string fmt_a, T args) {
     }
   }
 
-  while(*buf++ = *fmt++) ++len;
+  do {
+    *buf++ = *fmt++;
+    ++len;
+  } while(*fmt);
   return len;
 }
