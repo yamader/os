@@ -68,7 +68,6 @@ bool EFI_ERROR(EFI_STATUS status) {
 alias EFI_TABLE_HEADER = byte[24];
 
 struct EFI_SYSTEM_TABLE {
-align(1):
   EFI_TABLE_HEADER Hdr;
   wchar* FirmwareVendor;
   uint FirmwareRevision;
@@ -85,7 +84,6 @@ align(1):
 }
 
 struct EFI_BOOT_SERVICES {
-align(1):
   EFI_TABLE_HEADER Hdr;
   void* buf1,buf2;
   EFI_ALLOCATE_PAGES AllocatePages;
@@ -106,7 +104,6 @@ align(1):
 }
 
 struct EFI_RUNTIME_SERVICES {
-align(1):
   EFI_TABLE_HEADER Hdr;
   void* buf1,buf2,buf3,buf4,buf5,buf6,buf7,buf8,buf9,buf10;
   EFI_RESET_SYSTEM ResetSystem;
@@ -145,7 +142,6 @@ enum EFI_MEMORY_TYPE {
 }
 
 struct EFI_MEMORY_DESCRIPTOR {
-align(1):
   uint Type;
   EFI_PHYSICAL_ADDRESS PhysicalStart;
   ulong NumberOfPages;
@@ -231,7 +227,6 @@ alias EFI_RESET_SYSTEM = void function(
 // Device Path Protocol
 
 struct EFI_DEVICE_PATH_PROTOCOL {
-align(1):
   ubyte Type;
   ubyte SubType;
   ubyte[2] Length;
@@ -240,20 +235,17 @@ align(1):
 // Console Support
 
 struct EFI_SIMPLE_TEXT_INPUT_PROTOCOL {
-align(1):
   EFI_INPUT_RESET Reset;
   EFI_INPUT_READ_KEY ReadKeyStroke;
   EFI_EVENT WaitForKey;
 }
 
 struct EFI_INPUT_KEY {
-align(1):
   ushort ScanCode;
   wchar UnicodeChar;
 }
 
 struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
-align(1):
   EFI_TEXT_RESET Reset;
   EFI_TEXT_STRING OutputString;
   void* buf2,buf3,buf4,buf5;
@@ -264,7 +256,6 @@ align(1):
 }
 
 struct SIMPLE_TEXT_OUTPUT_MODE {
-align(1):
   int MaxMode;
   int Mode;
   int Attribute;
@@ -291,6 +282,7 @@ alias EFI_TEXT_STRING = EFI_STATUS function(
 
 alias EFI_TEXT_CLEAR_SCREEN = EFI_STATUS function(
   EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL* This);
+
 alias EFI_TEXT_SET_CURSOR_POSITION = EFI_STATUS function(
   EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL* This,
   UINTN Column,
