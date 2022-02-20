@@ -13,7 +13,7 @@ alias EFI_EVENT = void*;
 alias EFI_LBA = ulong;
 alias EFI_TPL = UINTN;
 
-enum EFI_STATUS {
+enum EFI_STATUS : UINTN {
   EFI_SUCCESS = 0uL,
   EFI_LOAD_ERROR = 1uL<<63| 1,
   EFI_INVALID_PARAMETER,
