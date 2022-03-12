@@ -15,6 +15,9 @@ ${TARGET}: ${OBJS} Makefile
 %.obj: %.d Makefile
 	${LDC} ${LDCFLAGS} --of=$@ -c $<
 
+%.obj: ../lib/%.d Makefile
+	${LDC} ${LDCFLAGS} --of=$@ -c $<
+
 clean:
 	rm -f ${TARGET} ${OBJS}
 

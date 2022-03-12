@@ -1,8 +1,8 @@
 module loader.main;
 import lib.elf;
 import lib.memmap;
+import lib.string;
 import loader.efi;
-import loader.string;
 
 extern(C):
 
@@ -36,7 +36,7 @@ EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   gRT = gST.RuntimeServices;
 
   gST.ConOut.Reset(gST.ConOut, false);
-  status = Print("hello, world (from Dlang)"w);
+  status = Print("hello, world (from Dlang)\r\n"w);
   if(EFI_ERROR(status)) {
     return status;
   }
