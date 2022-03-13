@@ -10,9 +10,9 @@ int sprintf(C, T...)(C[] buf_a, immutable(C)[]fmt_a, T args) {
      fmt = cast(C*)fmt_a.ptr;
   int len = 0;
   foreach(arg; args) {
-    bool zeroflag;
     int width;
-    format: while(*fmt) {
+    bool zeroflag, formatted;
+    while(*fmt) {
       if(*fmt != '%') {
         *buf++ = *fmt++;
         ++len;
@@ -31,21 +31,27 @@ int sprintf(C, T...)(C[] buf_a, immutable(C)[]fmt_a, T args) {
         case 'd':
           len += sprintf_u!(C, Digits.udec)
             (arg, &buf, zeroflag, cast(ubyte)(width));
-          break format;
+          formatted = true;
+          break;
         case 'x':
           len += sprintf_u!(C, Digits.uhex)
             (arg, &buf, zeroflag, cast(ubyte)(width));
-          break format;
+          formatted = true;
+          break;
         case 'b':
           len += sprintf_u!(C, Digits.ubin)
             (arg, &buf, zeroflag, cast(ubyte)(width));
-          break format;
+          formatted = true;
+          break;
         case 'c':
           *buf++ = cast(C)arg;
           ++len;
-          break format;
+          formatted = true;
+          break;
         default:
+          formatted = false;
       }
+      if(formatted) break;
     }
   }
   auto nokori = fmt_a.ptr + fmt_a.length - fmt;
