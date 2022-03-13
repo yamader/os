@@ -28,7 +28,7 @@ EFI_STATUS Print(T...)(wstring fmt, T args) {
   }
 }
 
-EFI_STATUS efi_main(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
+EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   EFI_STATUS status = void;
 
   gST = SystemTable;

@@ -4,7 +4,7 @@ LDCFLAGS    += --mtriple=x86_64-w64-mingw32 --betterC -I=..
 LDFLAGS     += -e ${ENTRYPOINT} --subsystem 10 -static
 
 TARGET      := loader.efi
-ENTRYPOINT  := efi_main
+ENTRYPOINT  := UefiMain
 OBJS        := main.obj efi.obj string.obj
 
 all: ${TARGET}
