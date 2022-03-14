@@ -101,19 +101,19 @@ struct EFI_BOOT_SERVICES {
   EFI_GET_MEMORY_MAP GetMemoryMap;
   EFI_ALLOCATE_POOL AllocatePool;
   EFI_FREE_POOL FreePool;
-  void* buf8,buf9,buf10,buf11,buf12,buf13,buf14,buf15,buf16,buf17,buf18,buf19,buf20,buf21;
+  void* buf8,buf9,buf10,buf11,buf12,buf13,buf14,buf15,buf16,buf17,buf18,buf19,buf20,buf21,buf22;
   EFI_IMAGE_LOAD LoadImage;
   EFI_IMAGE_START StartImage;
   EFI_EXIT Exit;
   EFI_IMAGE_UNLOAD UnloadImage;
   EFI_EXIT_BOOT_SERVICES ExitBootServices;
-  void* buf27,buf28,buf29,buf30,buf31;
+  void* buf28,buf29,buf30,buf31,buf32;
   EFI_OPEN_PROTOCOL OpenProtocol;
   EFI_CLOSE_PROTOCOL CloseProtocol;
-  void* buf34,buf35,buf36,buf37,buf38,buf39,buf40;
+  void* buf35,buf36,buf37,buf38,buf39,buf40,buf41;
   EFI_COPY_MEM CopyMem;
   EFI_SET_MEM SetMem;
-  void* buf43;
+  void* buf44;
 }
 
 struct EFI_RUNTIME_SERVICES {
