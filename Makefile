@@ -27,9 +27,9 @@ ${TARGET}: ${KERNEL_PATH} ${LOADER_PATH}
 	mmd -i efi.img ::/EFI
 	mmd -i efi.img ::/EFI/BOOT
 	mcopy -i efi.img ${LOADER_PATH} ::/EFI/BOOT/BOOTX64.EFI
+	mcopy -i efi.img ${KERNEL_PATH} ::/kernel.elf
 
 	cp efi.img ${WORK_DIR}/iso/efi.img
-	cp ${KERNEL_PATH} ${WORK_DIR}/iso/kernel.elf
 	${MKISOFS} -V "YAMADOS" -e efi.img -o ${TARGET} ${WORK_DIR}/iso
 
 	@echo
