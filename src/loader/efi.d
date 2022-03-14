@@ -227,7 +227,7 @@ alias EFI_OPEN_PROTOCOL = EFI_STATUS function(
   void** Interface,
   EFI_HANDLE AgentHandle,
   EFI_HANDLE ControllerHandle,
-  EFI_OPEN_PROTOCOL_ATTRIBUTES Attributes);
+  uint Attributes);
 
 alias EFI_CLOSE_PROTOCOL = EFI_STATUS function(
   EFI_HANDLE Handle,
@@ -252,6 +252,20 @@ enum EFI_RESET_TYPE {
   EfiResetWarm,
   EfiResetShutdown,
   EfiResetPlatformSpecific
+}
+
+struct EFI_TIME {
+  ushort Year;
+  ubyte Month;
+  ubyte Day;
+  ubyte Hour;
+  ubyte Minute;
+  ubyte Second;
+  ubyte buf7;
+  uint Nanosecond;
+  short TimeZone;
+  ushort Daylight;
+  ubyte buf11;
 }
 
 alias EFI_RESET_SYSTEM = void function(
@@ -365,6 +379,9 @@ alias EFI_SIMPLE_FILE_SYSTEM_PROTOCOL_OPEN_VOLUME = EFI_STATUS function(
 EFI_GUID gEfiSimpleFileSystemProtocolGuid =
   {0x0964e5b22,0x6459,0x11d2,{0x8e,0x39,0x00,0xa0,0xc9,0x69,0x72,0x3b}};
 
+EFI_GUID gEfiFileInfoGuid =
+  {0x09576e92,0x6d3f,0x11d2,{0x8e,0x39,0x00,0xa0,0xc9,0x69,0x72,0x3b}};
+
 enum EFI_FILE_OPEN_MODE : ulong {
   READ = 0x0000000000000001,
   WRITE = 0x0000000000000002,
@@ -379,6 +396,17 @@ enum EFI_FILE_OPEN_ATTRIBUTES : ulong {
   DIRECTORY = 0x0000000000000010,
   ARCHIVE = 0x0000000000000020,
   VALID_ATTR = 0x0000000000000037,
+}
+
+struct EFI_FILE_INFO {
+  ulong Size;
+  ulong FileSize;
+  ulong PhysicalSize;
+  EFI_TIME CreateTime;
+  EFI_TIME LastAccessTime;
+  EFI_TIME ModificationTime;
+  ulong Attribute;
+  wchar[] FileName;
 }
 
 struct EFI_FILE_PROTOCOL {
@@ -399,8 +427,8 @@ alias EFI_FILE_OPEN = EFI_STATUS function(
   EFI_FILE_PROTOCOL* This,
   EFI_FILE_PROTOCOL** NewHandle,
   wchar* FileName,
-  EFI_FILE_OPEN_MODE OpenMode,
-  EFI_FILE_OPEN_ATTRIBUTES Attributes);
+  ulong OpenMode,
+  ulong Attributes);
 
 alias EFI_FILE_CLOSE = EFI_STATUS function(
   EFI_FILE_PROTOCOL* This);
