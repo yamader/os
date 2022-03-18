@@ -6,6 +6,7 @@ import loader.efi;
 
 extern(C):
 
+enum YAMADOS_LOADER_VERSION = "v0.1.0";
 enum PRINT_STRING_BUF_SIZE = 100;
 
 __gshared {
@@ -26,6 +27,29 @@ EFI_STATUS Print(T...)(wstring fmt, T args) {
   } else {
     return gST.ConOut.OutputString(gST.ConOut, cast(wchar*)(fmt.ptr));
   }
+}
+
+EFI_STATUS ReadFile(wstring name)(EFI_FILE_PROTOCOL* file, void** buf) {
+  EFI_STATUS status;
+
+  const ulong file_info_s = EFI_FILE_INFO.sizeof + wchar.sizeof * name.length + 1;
+  ubyte[file_info_s] file_info_buf = void;
+  auto file_info = cast(EFI_FILE_INFO*)(file_info_buf.ptr);
+  status = file.GetInfo(
+    file, &gEfiFileInfoGuid, cast(ulong*)&file_info_s, file_info_buf.ptr);
+  if(EFI_ERROR(status)) {
+    Print("!! Error getting info of file "w ~ name ~ " : 0x%x\r\n"w, status);
+    return status;
+  }
+
+  status = gBS.AllocatePool(
+    EFI_MEMORY_TYPE.EfiLoaderData, file_info.FileSize, buf);
+  if(EFI_ERROR(status)) {
+    Print("!! Error allocating buffer on memory : 0x%x\r\n"w, status);
+    return status;
+  }
+
+  return file.Read(file, &file_info.FileSize, *buf);
 }
 
 EFI_STATUS OpenRootDir(EFI_HANDLE ImageHandle, EFI_FILE_PROTOCOL** root) {
@@ -60,27 +84,15 @@ EFI_STATUS OpenRootDir(EFI_HANDLE ImageHandle, EFI_FILE_PROTOCOL** root) {
   return fs.OpenVolume(fs, root);
 }
 
-EFI_STATUS ReadFile(wstring name)(EFI_FILE_PROTOCOL* file, void** buf) {
-  EFI_STATUS status;
+EFI_STATUS GetMemMap(MemMap* memmap) {
+  memmap.map_size = memmap.buf_size;
 
-  const ulong file_info_s = EFI_FILE_INFO.sizeof + wchar.sizeof * name.length + 1;
-  ubyte[file_info_s] file_info_buf = void;
-  EFI_FILE_INFO* file_info = cast(EFI_FILE_INFO*)(file_info_buf.ptr);
-  status = file.GetInfo(
-    file, &gEfiFileInfoGuid, cast(ulong*)&file_info_s, file_info_buf.ptr);
-  if(EFI_ERROR(status)) {
-    Print("!! Error getting info of file "w ~ name ~ " : 0x%x\r\n"w, status);
-    return status;
-  }
-
-  status = gBS.AllocatePool(
-    EFI_MEMORY_TYPE.EfiLoaderData, file_info.FileSize, buf);
-  if(EFI_ERROR(status)) {
-    Print("!! Error allocating buffer on memory : 0x%x\r\n"w, status);
-    return status;
-  }
-
-  return file.Read(file, &file_info.FileSize, *buf);
+  return gBS.GetMemoryMap(
+    &memmap.map_size,
+    cast(EFI_MEMORY_DESCRIPTOR*)(memmap.buf),
+    &memmap.key,
+    &memmap.desc_size,
+    &memmap.desc_ver);
 }
 
 EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
@@ -93,12 +105,27 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   // hello, world
 
   gST.ConOut.Reset(gST.ConOut, false);
-  status = Print("Loading yamadOS ...\r\n"w);
+  status = Print("yamadOS Loader : "w ~ YAMADOS_LOADER_VERSION ~ "\r\n\n"w);
   if(EFI_ERROR(status)) {
     Halt();
   }
 
-  // load kernel file
+  // get memory map
+
+  enum size_t memmap_buf_size = 1024 * 16;
+
+  MemMap memmap = void;
+  ubyte[memmap_buf_size] memmap_buf = void;
+  memmap.buf = memmap_buf.ptr;
+  memmap.buf_size = memmap_buf_size;
+  Print("Getting memory map ...\r\n"w);
+  status = GetMemMap(&memmap);
+  if(EFI_ERROR(status)) {
+    Print("!! Error getting memory map : 0x%x\r\n"w, status);
+    Halt();
+  }
+
+  // load kernel
 
   enum kernel_file_name = "\\kernel.elf"w;
 
@@ -116,7 +143,7 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     root_dir, &kernel_file, cast(wchar*)kernel_file_name, EFI_FILE_OPEN_MODE.READ, 0);
   if(EFI_ERROR(status)) {
     Print("!! Error opening kernel file : 0x%x\r\n"w, status);
-    return status;
+    Halt();
   }
 
   void* kernel_file_buf;
@@ -127,8 +154,41 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     Halt();
   }
 
-  // catch
+  auto kernel_file_ehdr = cast(Elf64_Ehdr*)kernel_file_buf;
+  auto kernel_file_phdr = cast(Elf64_Phdr*)(cast(size_t)kernel_file_ehdr + kernel_file_ehdr.e_phoff);
+  Print("Loading kernel ...\r\n"w);
+  //
+
+  Print("Freeing kernel file buf ...\r\n"w);
+  status = gBS.FreePool(kernel_file_buf);
+  if(EFI_ERROR(status)) {
+    Print("!! Error freeing kernel file buf : 0x%x\r\n"w, status);
+    Halt();
+  }
+
+  // open GOP
+
+  // start kernel
+
+  Print("Exiting uefi boot services ...\r\n"w);
+  status = gBS.ExitBootServices(ImageHandle, memmap.key);
+  if(status == EFI_STATUS.EFI_INVALID_PARAMETER) {
+    Print("Updating memory map ...\r\n"w);
+    status = GetMemMap(&memmap);
+    if(EFI_ERROR(status)) {
+      Print("!! Error updating memory map : 0x%x\r\n"w, status);
+      Halt();
+    }
+    status = gBS.ExitBootServices(ImageHandle, memmap.key);
+    if(EFI_ERROR(status)) {
+      Print("!! Error exiting uefi boot services : 0x%x\r\n"w, status);
+      Halt();
+    }
+  }
+
+  //kernel_main();
 
   Halt();
+
   return EFI_STATUS.EFI_SUCCESS;
 }

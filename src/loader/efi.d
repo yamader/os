@@ -126,6 +126,7 @@ struct EFI_RUNTIME_SERVICES {
 // Boot Services
 
 alias EFI_PHYSICAL_ADDRESS = ulong;
+alias EFI_VIRTUAL_ADDRESS = ulong;
 
 enum EFI_ALLOCATE_TYPE {
   AllocateAnyPages,
@@ -166,6 +167,7 @@ enum EFI_OPEN_PROTOCOL_ATTRIBUTES : uint {
 struct EFI_MEMORY_DESCRIPTOR {
   uint Type;
   EFI_PHYSICAL_ADDRESS PhysicalStart;
+  EFI_VIRTUAL_ADDRESS VirtualStart;
   ulong NumberOfPages;
   ulong Attributes;
 }

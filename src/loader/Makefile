@@ -5,7 +5,7 @@ LDFLAGS     += -e ${ENTRYPOINT} --subsystem 10 -static
 
 TARGET      := loader.efi
 ENTRYPOINT  := UefiMain
-OBJS        := main.obj efi.obj string.obj
+OBJS        := main.obj efi.obj string.obj support.obj
 
 all: ${TARGET}
 

@@ -1,7 +1,6 @@
 module lib.elf;
 
 struct Elf64_Ehdr {
-align(1):
   ubyte[16] e_ident;
   ushort    e_type;
   ushort    e_machine;
@@ -19,7 +18,6 @@ align(1):
 }
 
 struct Elf64_Phdr {
-align(1):
   uint      p_type;
   uint      p_flags;
   ulong     p_offset;
