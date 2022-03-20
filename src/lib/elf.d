@@ -27,3 +27,14 @@ struct Elf64_Phdr {
   ulong     p_memsz;
   ulong     p_align;
 }
+
+enum P_TYPE : uint {
+  NULL = 0,
+  LOAD,
+  DYNAMIC,
+  INTERP,
+  NOTE,
+  SHLIB,
+  PHDR,
+  TLS,
+}

@@ -29,6 +29,14 @@ EFI_STATUS Print(T...)(wstring fmt, T args) {
   }
 }
 
+void BytesCpy(ubyte* buf, ubyte* src, size_t len) {
+  foreach(i; 0 .. len) buf[i] = src[i];
+}
+
+void BytesSet(ubyte* buf, size_t len, ubyte val) {
+  foreach(i; 0 .. len) buf[i] = val;
+}
+
 EFI_STATUS ReadFile(wstring name)(EFI_FILE_PROTOCOL* file, void** buf) {
   EFI_STATUS status;
 
@@ -125,6 +133,8 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     Halt();
   }
 
+  // open GOP
+
   // load kernel
 
   enum kernel_file_name = "\\kernel.elf"w;
@@ -154,10 +164,43 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     Halt();
   }
 
-  auto kernel_file_ehdr = cast(Elf64_Ehdr*)kernel_file_buf;
-  auto kernel_file_phdr = cast(Elf64_Phdr*)(cast(size_t)kernel_file_ehdr + kernel_file_ehdr.e_phoff);
+  auto kernel_ehdr = cast(Elf64_Ehdr*)kernel_file_buf;
+  auto kernel_phdr = cast(Elf64_Phdr*)(cast(UINTN)kernel_ehdr + kernel_ehdr.e_phoff);
+  auto kernel_program_head = cast(void*)ulong.max;
+  auto kernel_program_tail = cast(void*)0;
+  foreach(i; 0 .. kernel_ehdr.e_phnum) if(kernel_phdr[i].p_type == P_TYPE.LOAD) {
+    auto max(T)(T a, T b) { return a > b ? a : b; }
+    auto min(T)(T a, T b) { return a < b ? a : b; }
+    kernel_program_head = min(
+      kernel_program_head, cast(void*)(kernel_phdr[i].p_vaddr));
+    kernel_program_tail = max(
+      kernel_program_tail, cast(void*)(kernel_phdr[i].p_vaddr + kernel_phdr[i].p_memsz));
+  }
+
+  ulong kernel_entry;
   Print("Loading kernel ...\r\n"w);
-  //
+  status = gBS.AllocatePages(
+    EFI_ALLOCATE_TYPE.AllocateAddress,
+    EFI_MEMORY_TYPE.EfiLoaderData,
+    (kernel_program_tail - kernel_program_head + 0xfff) / 0x1000,
+    cast(EFI_PHYSICAL_ADDRESS*)&kernel_program_head);
+  if(EFI_ERROR(status)) {
+    Print("!! Error allocating kernel buffer : 0x%x\r\n"w, status);
+    Halt();
+  }
+  foreach(i; 0 .. kernel_ehdr.e_phnum) if(kernel_phdr[i].p_type == P_TYPE.LOAD) {
+    BytesCpy(
+      cast(ubyte*)(kernel_phdr[i].p_vaddr),
+      cast(ubyte*)(kernel_ehdr + kernel_phdr[i].p_offset),
+      kernel_phdr[i].p_filesz);
+    BytesSet(
+      cast(ubyte*)(kernel_phdr[i].p_vaddr + kernel_phdr[i].p_filesz),
+      cast(ubyte*)(kernel_phdr[i].p_memsz - kernel_phdr[i].p_filesz),
+      0);
+  }
+  kernel_entry = *cast(ulong*)(kernel_program_head + 24);
+
+  Print("\r\nKernel loaded : 0x%x\r\n\n"w, kernel_entry);
 
   Print("Freeing kernel file buf ...\r\n"w);
   status = gBS.FreePool(kernel_file_buf);
@@ -166,9 +209,7 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     Halt();
   }
 
-  // open GOP
-
-  // start kernel
+  // exit uefi boot services
 
   Print("Exiting uefi boot services ...\r\n"w);
   status = gBS.ExitBootServices(ImageHandle, memmap.key);
@@ -186,7 +227,14 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     }
   }
 
-  //kernel_main();
+  // start kernel
+
+  alias EntryPoint = int function(
+    const MemMap*);
+
+  auto kernel_main = cast(EntryPoint)kernel_entry;
+
+  kernel_main(&memmap);
 
   Halt();
 
