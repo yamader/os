@@ -191,7 +191,7 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   foreach(i; 0 .. kernel_ehdr.e_phnum) if(kernel_phdr[i].p_type == P_TYPE.LOAD) {
     BytesCpy(
       cast(ubyte*)(kernel_phdr[i].p_vaddr),
-      cast(ubyte*)(kernel_ehdr + kernel_phdr[i].p_offset),
+      cast(ubyte*)(cast(ulong)kernel_ehdr + kernel_phdr[i].p_offset),
       kernel_phdr[i].p_filesz);
     BytesSet(
       cast(ubyte*)(kernel_phdr[i].p_vaddr + kernel_phdr[i].p_filesz),
@@ -232,9 +232,9 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   alias EntryPoint = int function(
     const MemMap*);
 
-  auto kernel_main = cast(EntryPoint)kernel_entry;
+  auto kernel = cast(EntryPoint)kernel_entry;
 
-  kernel_main(&memmap);
+  kernel(&memmap);
 
   Halt();
 
