@@ -75,6 +75,7 @@ int sprintf_u(C, Digits buf_s)(ulong val, C** str, bool zero, ubyte width) {
   C* buf = &_buf[$-1];
   if(val == 0) {
     *buf-- = '0';
+    ++len;
   } else {
     if(width) {
       while(len < width && val) {
