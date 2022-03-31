@@ -10,8 +10,9 @@ __gshared {
 }
 
 void kernel() {
+  ulong stack_base = cast(ulong)stack_buf.ptr + stack_size;
   asm {
-    mov stack_buf + stack_size, RSP;
+    mov RSP, stack_base;
     call kernel_main;
   }
   while(true) asm { hlt; }
