@@ -1,7 +1,7 @@
 LDC         := ldc2
-LD          := x86_64-w64-mingw32-ld
-LDCFLAGS    += --mtriple=x86_64-w64-mingw32 --betterC -I=..
-LDFLAGS     += -e ${ENTRYPOINT} --subsystem 10 -static
+LINK        := lld-link
+LDCFLAGS    += --mtriple=x86_64-unknown-windows-coff --betterC -I=..
+LINKFLAGS   += /subsystem:efi_application /entry:${ENTRYPOINT}
 
 TARGET      := loader.efi
 ENTRYPOINT  := UefiMain
@@ -9,8 +9,11 @@ OBJS        := main.obj efi.obj string.obj support.obj
 
 all: ${TARGET}
 
+release: LDCFLAGS += --O3 --release
+release: all Makefile
+
 ${TARGET}: ${OBJS} Makefile
-	${LD} ${LDFLAGS} -o $@ ${OBJS}
+	${LINK} ${LINKFLAGS} /out:$@ ${OBJS}
 
 %.obj: %.d Makefile
 	${LDC} ${LDCFLAGS} --of=$@ -c $<
@@ -19,6 +22,6 @@ ${TARGET}: ${OBJS} Makefile
 	${LDC} ${LDCFLAGS} --of=$@ -c $<
 
 clean:
-	rm -f ${TARGET} ${OBJS}
+	rm -f *.obj
 
-.PHONY: all clean
+.PHONY: all release clean

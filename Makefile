@@ -15,10 +15,13 @@ LOADER_PATH     := ${LOADER_SRC}/${LOADER_BIN}
 
 all: ${TARGET}
 
-run: ${TARGET}
+release: RELEASE := yes
+release: all Makefile
+
+run: ${TARGET} Makefile
 	qemu-system-x86_64 -bios ${OVMF_CODE} -cdrom ${TARGET}
 
-${TARGET}: ${KERNEL_PATH} ${LOADER_PATH}
+${TARGET}: ${KERNEL_PATH} ${LOADER_PATH} Makefile
 	[ ! -f ${TARGET} ] || mv ${TARGET} ${TARGET}.bak
 	rm -rf ${WORK_DIR}/iso && mkdir -p ${WORK_DIR}/iso
 
@@ -37,15 +40,22 @@ ${TARGET}: ${KERNEL_PATH} ${LOADER_PATH}
 	@echo
 
 ${KERNEL_PATH}: ${KERNEL_SRC}
-	${MAKE} ${MAKEFLAGS} -C ${KERNEL_SRC}
+	@if [ -n "${RELEASE}" ]; then \
+		${MAKE} ${MAKEFLAGS} -C ${KERNEL_SRC} release; \
+	else \
+		${MAKE} ${MAKEFLAGS} -C ${KERNEL_SRC}; \
+	fi
 
 ${LOADER_PATH}: ${LOADER_SRC}
-	${MAKE} ${MAKEFLAGS} -C ${LOADER_SRC}
+	@if [ -n "${RELEASE}" ]; then \
+		${MAKE} ${MAKEFLAGS} -C ${LOADER_SRC} release; \
+	else \
+		${MAKE} ${MAKEFLAGS} -C ${LOADER_SRC}; \
+	fi
 
 clean:
-	rm -f ${TARGET}
 	rm -rf ${WORK_DIR}
 	${MAKE} ${MAKEFLAGS} -C ${KERNEL_SRC} clean
 	${MAKE} ${MAKEFLAGS} -C ${LOADER_SRC} clean
 
-.PHONY: all run clean
+.PHONY: all release run clean

@@ -1,3 +1,4 @@
 extern(C):
 
-void ___chkstk_ms() {}
+void memset() {}
+void __chkstk() {}

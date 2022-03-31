@@ -10,6 +10,10 @@ OBJS        := main.o
 
 all: ${TARGET}
 
+release: LDCFLAGS += --O3 --release
+release: LDFLAGS += --strip-all
+release: all Makefile
+
 ${TARGET}: ${OBJS} Makefile
 	${LD} ${LDFLAGS} -o $@ ${OBJS}
 
@@ -17,6 +21,6 @@ ${TARGET}: ${OBJS} Makefile
 	${LDC} ${LDCFLAGS} --of=$@ -c $<
 
 clean:
-	rm -f ${TARGET} ${OBJS}
+	rm -f *.o
 
-.PHONY: all clean
+.PHONY: all release clean
