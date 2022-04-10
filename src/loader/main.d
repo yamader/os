@@ -1,6 +1,7 @@
 module loader.main;
-import lib.elf;
 import lib.memmap;
+import lib.framebuf;
+import lib.elf;
 import lib.string;
 import loader.efi;
 
@@ -19,28 +20,28 @@ void Halt() {
   while(true) asm { hlt; }
 }
 
-EFI_STATUS Print(T...)(wstring fmt, T args) {
+EFI_STATUS Print(T...)(immutable CHAR16[] fmt, T args) {
   static if(args.length > 0) {
-    wchar[PRINT_STRING_BUF_SIZE] buf;
+    CHAR16[PRINT_STRING_BUF_SIZE] buf;
     sprintf(buf, fmt, args);
     return gST.ConOut.OutputString(gST.ConOut, buf.ptr);
   } else {
-    return gST.ConOut.OutputString(gST.ConOut, cast(wchar*)(fmt.ptr));
+    return gST.ConOut.OutputString(gST.ConOut, cast(CHAR16*)(fmt.ptr));
   }
 }
 
-void BytesCpy(ubyte* buf, ubyte* src, size_t len) {
-  foreach(i; 0 .. len) buf[i] = src[i];
+void CopyMem(VOID* buf, VOID* src, UINTN size) {
+  foreach(i; 0 .. size) (cast(ubyte*)buf)[i] = (cast(ubyte*)src)[i];
 }
 
-void BytesSet(ubyte* buf, size_t len, ubyte val) {
-  foreach(i; 0 .. len) buf[i] = val;
+void SetMem(VOID* buf, UINTN size, UINT8 val) {
+  foreach(i; 0 .. size) (cast(ubyte*)buf)[i] = val;
 }
 
-EFI_STATUS ReadFile(wstring name)(EFI_FILE_PROTOCOL* file, void** buf) {
+EFI_STATUS ReadFile(immutable CHAR16[] name)(EFI_FILE_PROTOCOL* file, void** buf) {
   EFI_STATUS status;
 
-  const ulong file_info_s = EFI_FILE_INFO.sizeof + wchar.sizeof * name.length + 1;
+  const ulong file_info_s = EFI_FILE_INFO.sizeof + CHAR16.sizeof * name.length + 1;
   ubyte[file_info_s] file_info_buf = void;
   auto file_info = cast(EFI_FILE_INFO*)(file_info_buf.ptr);
   status = file.GetInfo(
@@ -135,6 +136,33 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 
   // open GOP
 
+  EFI_GRAPHICS_OUTPUT_PROTOCOL* gop;
+  EFI_HANDLE* gop_handles;
+  UINTN num_gop_handles;
+  Print("Opening GOP ...\r\n"w);
+  status = gBS.LocateHandleBuffer(
+    EFI_LOCATE_SEARCH_TYPE.ByProtocol,
+    &gEfiGraphicsOutputProtocolGuid,
+    null,
+    &num_gop_handles,
+    &gop_handles);
+  if(EFI_ERROR(status)) {
+    Print("!! Error locating GOP : 0x%x\r\n"w, status);
+    Halt();
+  }
+  status = gBS.OpenProtocol(
+    gop_handles[0],
+    &gEfiGraphicsOutputProtocolGuid,
+    cast(VOID**)&gop,
+    ImageHandle,
+    null,
+    EFI_OPEN_PROTOCOL_ATTRIBUTES.BY_HANDLE_PROTOCOL);
+  if(EFI_ERROR(status)) {
+    Print("!! Error opening GOP : 0x%x\r\n"w, status);
+    Halt();
+  }
+  gBS.FreePool(gop_handles);
+
   // load kernel
 
   enum kernel_file_name = "\\kernel.elf"w;
@@ -150,7 +178,7 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   EFI_FILE_PROTOCOL* kernel_file;
   Print("Opening kernel file ...\r\n"w);
   status = root_dir.Open(
-    root_dir, &kernel_file, cast(wchar*)kernel_file_name, EFI_FILE_OPEN_MODE.READ, 0);
+    root_dir, &kernel_file, cast(CHAR16*)kernel_file_name, EFI_FILE_OPEN_MODE.READ, 0);
   if(EFI_ERROR(status)) {
     Print("!! Error opening kernel file : 0x%x\r\n"w, status);
     Halt();
@@ -189,18 +217,18 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     Halt();
   }
   foreach(i; 0 .. kernel_ehdr.e_phnum) if(kernel_phdr[i].p_type == P_TYPE.LOAD) {
-    BytesCpy(
-      cast(ubyte*)(kernel_phdr[i].p_vaddr),
-      cast(ubyte*)(cast(ulong)kernel_ehdr + kernel_phdr[i].p_offset),
+    CopyMem(
+      cast(VOID*)(kernel_phdr[i].p_vaddr),
+      cast(VOID*)(cast(ulong)kernel_ehdr + kernel_phdr[i].p_offset),
       kernel_phdr[i].p_filesz);
-    BytesSet(
-      cast(ubyte*)(kernel_phdr[i].p_vaddr + kernel_phdr[i].p_filesz),
-      cast(ubyte*)(kernel_phdr[i].p_memsz - kernel_phdr[i].p_filesz),
-      0);
+    SetMem(
+      cast(VOID*)(kernel_phdr[i].p_vaddr + kernel_phdr[i].p_filesz),
+      kernel_phdr[i].p_memsz - kernel_phdr[i].p_filesz,
+      0x00);
   }
   kernel_entry = *cast(ulong*)(kernel_program_head + 24);
 
-  Print("\r\nKernel loaded : 0x%x\r\n\n"w, kernel_entry);
+  Print("\nKernel loaded : 0x%x\r\n\n"w, kernel_entry);
 
   Print("Freeing kernel file buf ...\r\n"w);
   status = gBS.FreePool(kernel_file_buf);
@@ -229,10 +257,10 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 
   // start kernel
 
-  alias EntryPoint = int function(
+  alias KernelEntry = void function(
     const MemMap*);
 
-  auto kernel = cast(EntryPoint)kernel_entry;
+  auto kernel = cast(KernelEntry)kernel_entry;
 
   kernel(&memmap);
 

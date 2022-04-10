@@ -1,5 +1,6 @@
 module kernel.main;
 import lib.memmap;
+import lib.framebuf;
 
 extern(C):
 
@@ -18,6 +19,6 @@ void kernel() {
   while(true) asm { hlt; }
 }
 
-void kernel_main(MemMap* memmap) {
+void kernel_main(const MemMap* memmap) {
   while(true) asm { hlt; }
 }

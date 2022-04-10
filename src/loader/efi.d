@@ -140,9 +140,9 @@ struct EFI_BOOT_SERVICES {
     buf31,buf32;
   EFI_OPEN_PROTOCOL OpenProtocol;
   EFI_CLOSE_PROTOCOL CloseProtocol;
-  void* buf35,
-    buf36, buf37, buf38, buf39, buf40,
-    buf41;
+  void* buf35, buf36;
+  EFI_LOCATE_HANDLE_BUFFER LocateHandleBuffer;
+  void* buf39, buf40, buf41;
   EFI_COPY_MEM CopyMem;
   EFI_SET_MEM SetMem;
   void* buf44;
@@ -210,6 +210,13 @@ struct EFI_BOOT_SERVICES {
   alias EFI_EXIT_BOOT_SERVICES = EFI_STATUS function(
     EFI_HANDLE ImageHandle,
     UINTN MapKey);
+
+  alias EFI_LOCATE_HANDLE_BUFFER = EFI_STATUS function(
+    EFI_LOCATE_SEARCH_TYPE SearchType,
+    EFI_GUID* Protocol,
+    VOID* SearchKey,
+    UINTN* NoHandles,
+    EFI_HANDLE** Buffer);
 
   alias EFI_COPY_MEM = void function(
     VOID* Destination,
@@ -286,6 +293,12 @@ enum EFI_OPEN_PROTOCOL_ATTRIBUTES {
   BY_CHILD_CONTROLLER           = 0x00000008,
   BY_DRIVER                     = 0x00000010,
   EXCLUSIVE                     = 0x00000020,
+}
+
+enum EFI_LOCATE_SEARCH_TYPE {
+  AllHandles,
+  ByRegisterNotify,
+  ByProtocol,
 }
 
 struct EFI_MEMORY_DESCRIPTOR {
@@ -408,19 +421,46 @@ struct EFI_SIMPLE_TEXT_OUTPUT_PROTOCOL {
     BOOLEAN Visible);
 }
 
-//struct EFI_GRAPHICS_OUTPUT_PROTOCOL {
-//  void* buf0,buf1,buf2;
-//  EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE* Mode;
-//}
+EFI_GUID gEfiGraphicsOutputProtocolGuid =
+  {0x9042a9de,0x23dc,0x4a38,{0x96,0xfb,0x7a,0xde,0xd0,0x80,0x51,0x6a}};
 
-//struct EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE {
-//  uint MaxMode;
-//  uint Mode;
-//  EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* Info;
-//  UINTN SizeOfInfo;
-//  EFI_PHYSICAL_ADDRESS FrameBufferBase;
-//  UINTN FrameBufferSize;
-//}
+struct EFI_GRAPHICS_OUTPUT_PROTOCOL {
+  void* buf0, buf1, buf2;
+  EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE* Mode;
+
+  struct EFI_GRAPHICS_OUTPUT_PROTOCOL_MODE {
+    uint MaxMode;
+    uint Mode;
+    EFI_GRAPHICS_OUTPUT_MODE_INFORMATION* Info;
+    UINTN SizeOfInfo;
+    EFI_PHYSICAL_ADDRESS FrameBufferBase;
+    UINTN FrameBufferSize;
+  }
+
+  struct EFI_GRAPHICS_OUTPUT_MODE_INFORMATION {
+    UINT32 Version;
+    UINT32 HorizontalResolution;
+    UINT32 VerticalResolution;
+    EFI_GRAPHICS_PIXEL_FORMAT PixelFormat;
+    EFI_PIXEL_BITMASK PixelInformation;
+    UINT32 PixelsPerScanLine;
+  }
+
+  struct EFI_PIXEL_BITMASK {
+    UINT32 RedMask;
+    UINT32 GreenMask;
+    UINT32 BlueMask;
+    UINT32 ReservedMask;
+  }
+}
+
+enum EFI_GRAPHICS_PIXEL_FORMAT {
+  PixelRedGreenBlueReserved8BitPerColor,
+  PixelBlueGreenRedReserved8BitPerColor,
+  PixelBitMask,
+  PixelBltOnly,
+  PixelFormatMax
+}
 
 // Simple File System Protocol
 
