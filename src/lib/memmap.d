@@ -1,5 +1,5 @@
 module lib.memmap;
-import loader.efi : UINTN;
+import loader.efi: UINTN;
 
 extern(C):
 

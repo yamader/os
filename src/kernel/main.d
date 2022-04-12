@@ -19,6 +19,9 @@ void kernel() {
   while(true) asm { hlt; }
 }
 
-void kernel_main(const MemMap* memmap) {
+void kernel_main(
+    ref const MemMap memmap,
+    ref const FBConf fb_efi) {
+  auto fb = FBFullColor(&fb_efi);
   while(true) asm { hlt; }
 }

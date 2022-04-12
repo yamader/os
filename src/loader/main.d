@@ -163,6 +163,25 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   }
   gBS.FreePool(gop_handles);
 
+  FBConf fb_efi;
+  fb_efi.Base = cast(void*)gop.Mode.FrameBufferBase;
+  fb_efi.PixVert = gop.Mode.Info.VerticalResolution;
+  fb_efi.PixHoriz = gop.Mode.Info.HorizontalResolution;
+  fb_efi.PixScanLine = gop.Mode.Info.PixelsPerScanLine;
+  switch(gop.Mode.Info.PixelFormat) {
+    case EFI_GRAPHICS_PIXEL_FORMAT.PixelRedGreenBlueReserved8BitPerColor:
+      fb_efi.PixFmt = ColorFmt.RGB;
+      Print("GOP : Base=0x%x Fmt=%d\r\n"w, cast(ulong)fb_efi.Base, fb_efi.PixFmt);
+      break;
+    case EFI_GRAPHICS_PIXEL_FORMAT.PixelBlueGreenRedReserved8BitPerColor:
+      fb_efi.PixFmt = ColorFmt.BGR;
+      Print("GOP : Base=0x%x Fmt=%d\r\n"w, cast(ulong)fb_efi.Base, fb_efi.PixFmt);
+      break;
+    default:
+      fb_efi.PixFmt = ColorFmt.Unknown;
+      Print("!! Error parsing GOP : unknown color format\r\n"w);
+  }
+
   // load kernel
 
   enum kernel_file_name = "\\kernel.elf"w;
@@ -258,11 +277,11 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
   // start kernel
 
   alias KernelEntry = void function(
-    const MemMap*);
+    ref const MemMap, ref const FBConf);
 
   auto kernel = cast(KernelEntry)kernel_entry;
 
-  kernel(&memmap);
+  kernel(memmap, fb_efi);
 
   Halt();
 
