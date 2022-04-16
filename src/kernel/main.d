@@ -10,18 +10,18 @@ __gshared {
   ubyte[stack_size] stack_buf;
 }
 
-void kernel() {
-  ulong stack_base = cast(ulong)stack_buf.ptr + stack_size;
-  asm {
-    mov RSP, stack_base;
-    call kernel_main;
-  }
-  while(true) asm { hlt; }
-}
-
-void kernel_main(
+void kernel(
     ref const MemMap memmap,
     ref const FBConf fb_efi) {
+  { // stack
+    ulong stack_base = cast(ulong)stack_buf.ptr + stack_size;
+    asm {
+      mov RSP, stack_base;
+      mov RBP, RSP;
+    }
+  }
+
   auto fb = FBFullColor(&fb_efi);
+
   while(true) asm { hlt; }
 }
