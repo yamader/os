@@ -1,4 +1,4 @@
-module lib.framebuf;
+module kernel.framebuf;
 
 extern(C):
 

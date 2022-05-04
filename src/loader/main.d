@@ -1,9 +1,9 @@
 module loader.main;
-import lib.memmap;
-import lib.framebuf;
 import lib.elf;
 import lib.string;
+import kernel.framebuf;
 import loader.efi;
+import loader.memmap;
 
 extern(C):
 

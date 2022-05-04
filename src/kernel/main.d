@@ -1,6 +1,6 @@
 module kernel.main;
-import lib.memmap;
-import lib.framebuf;
+import loader.memmap;
+import kernel.framebuf;
 
 extern(C):
 
