@@ -1,6 +1,7 @@
 module kernel.main;
 import loader.memmap;
 import kernel.framebuf;
+import kernel.graphics;
 
 extern(C):
 
@@ -27,4 +28,5 @@ void kernel_main(
     ref const MemMap memmap,
     ref const FBConf fb_efi) {
   auto fb = FBFullColor(&fb_efi);
+  fb.FlushScr;
 }

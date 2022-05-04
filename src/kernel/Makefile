@@ -6,7 +6,7 @@ LDFLAGS     += --entry=${ENTRYPOINT} --image-base=${IMG_BASE} --static
 TARGET      := kernel.elf
 ENTRYPOINT  := kernel_entry
 IMG_BASE    := 0x100000
-OBJS        := main.o framebuf.o support.o
+OBJS        := main.o framebuf.o graphics.o support.o
 
 all: ${TARGET}
 

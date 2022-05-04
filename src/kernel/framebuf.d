@@ -21,10 +21,13 @@ struct RGBColor {
 }
 
 struct FBFullColor {
+  const uint vert, horiz;
   void delegate(const uint x, const uint y, const RGBColor c) write;
 
   this(const FBConf* conf) {
     this.conf = conf;
+    this.vert = conf.PixVert;
+    this.horiz = conf.PixHoriz;
     final switch(conf.PixFmt) {
       case ColorFmt.RGB: this.write = &WriteRGB; break;
       case ColorFmt.BGR: this.write = &WriteBGR; break;
@@ -36,7 +39,7 @@ private:
   const FBConf* conf;
 
   auto PixelAt(const uint x, const uint y) {
-    return cast(ubyte*)(cast(ulong*)conf.Base + (conf.PixScanLine * y + x));
+    return cast(ubyte*)conf.Base + 4 * (conf.PixScanLine * y + x);
   }
 
   void WriteRGB(const uint x, const uint y, const RGBColor c) {
