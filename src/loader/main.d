@@ -276,12 +276,16 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
 
   // start kernel
 
-  alias KernelEntry = void function(
-    ref const MemMap, ref const FBConf);
-
-  auto kernel = cast(KernelEntry)kernel_entry;
-
-  kernel(memmap, fb_efi);
+  // void kernel(ref const MemMap, ref const FBConf);
+  {
+    auto mmp = &memmap,
+         fbp = &fb_efi;
+    asm {
+      mov RDI, mmp;
+      mov RSI, fbp;
+      call kernel_entry;
+    }
+  }
 
   Halt();
 

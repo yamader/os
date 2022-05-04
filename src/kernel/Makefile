@@ -4,7 +4,7 @@ LDCFLAGS    += --mtriple=x86_64-unknown-none-elf --betterC -I=..
 LDFLAGS     += --entry=${ENTRYPOINT} --image-base=${IMG_BASE} --static
 
 TARGET      := kernel.elf
-ENTRYPOINT  := kernel
+ENTRYPOINT  := kernel_entry
 IMG_BASE    := 0x100000
 OBJS        := main.o framebuf.o support.o
 
