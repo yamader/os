@@ -27,13 +27,14 @@ ${TARGET}: ${KERNEL_PATH} ${LOADER_PATH} Makefile
 	rm -rf ${WORK_DIR}/iso && mkdir -p ${WORK_DIR}/iso
 
 	dd if=/dev/zero of=${ESP} bs=1M count=128
-	mkfs.vfat -n "YAMADOS_ESP" ${ESP}
+	mkfs.fat -n "YAMADOS_ESP" ${ESP}
 	mmd -i ${ESP} ::EFI ::EFI/BOOT
 	mcopy -i ${ESP} ${LOADER_PATH} ::EFI/BOOT/BOOTX64.EFI
 	mcopy -i ${ESP} ${KERNEL_PATH} ::kernel.elf
 
 	${MKISOFS} -V "YAMADOS" \
-		-e esp.img -no-emul-boot \
+		-iso-level 3 -full-iso9660-filenames \
+		-eltorito-alt-boot -e esp.img -no-emul-boot \
 		-o ${TARGET} ${WORK_DIR}/iso
 
 	@echo
