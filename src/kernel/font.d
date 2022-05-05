@@ -10,10 +10,11 @@ private extern {
 
 struct SimpleFont {
   const ubyte width,
-              height;
+              height,
+              bytesPerLine;
   private const ubyte[] data;
 
   void* getChr(char c) const {
-    return cast(void*)data.ptr + (width * height) * c;
+    return cast(void*)data.ptr + (bytesPerLine * height) * c;
   }
 }

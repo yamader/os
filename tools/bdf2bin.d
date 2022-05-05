@@ -18,11 +18,12 @@ void main(string[] args) {
 
   auto fin = File(args[1], "r");
   auto fout = File(args[2], "w");
+  scope(exit) {
+    fin.close;
+    fout.close;
+  }
 
-  alias chrData = ubyte[][];
-  chrData[FontLen] data;
-
-  uint fbbx, fbby, xoff, yoff;
+  ubyte fbbx, fbby, xoff, yoff;
   while(true) {
     auto row = fin.readln.chomp;
     if(row.startsWith("FONTBOUNDINGBOX")) {
@@ -36,33 +37,49 @@ void main(string[] args) {
       die("FONTBOUNDINGBOX not found");
   }
 
-  auto chr = new ubyte[][](fbby, fbbx);
+  ubyte bytesPerLine = (fbbx + 7) / 8;
+  auto data = new ubyte[bytesPerLine][fbby][FontLen];
+
+  ubyte[][] chr;
   uint fcur, bbw, bbh, bbxoff0x, bbyoff0y,
        fcnt = 0, phase = 0;
   while(true) {
     auto row = fin.readln.chomp;
-    if(phase == 0 && row.startsWith("STARTCHAR"))
-      phase++;
-    else if(phase == 1 && row.startsWith("ENCODING"))
-      fcur = row[9..$].to!uint;
-    else if(phase == 1 && row.startsWith("BBX")) {
-      auto a = row[4..$].split.map(to!int);
-      bbw = a[0],
-      bbh = a[1],
-      bbxoff0x = a[2],
-      bbxoff0y = a[3];
-      chr = 0;
-    } else if(phase == 1 && row.startsWith("BITMAP"))
-      phase++;
-    else if(phase == 2 && row.startsWith("ENDCHAR")) {
-      // buf to data
-      fcnt++;
-      phase = 0;
-    } else if(phase == 2) {
-      // readln
-    } else if(!row.length) break;
-    if(fcnt >= FontLen) break;
+
+    if(phase == 0) {
+      if(row.startsWith("STARTCHAR")) {
+        chr = [];
+        phase++;
+      }
+    }
+
+    if(phase == 1) {
+      if(row.startsWith("ENCODING"))
+        fcur = row[9..$].to!uint;
+      if(row.startsWith("BBX")) {
+        auto a = row[4..$].split.map(to!int);
+        bbw = a[0],
+        bbh = a[1],
+        bbxoff0x = a[2],
+        bbxoff0y = a[3];
+      }
+      if(row.startsWith("BITMAP"))
+        phase++;
+    }
+
+    if(phase == 2) {
+      if(!row.startsWith("ENDCHAR")) {
+        chr ~= row.split("").map!(to!ubyte);
+      } else {
+        // chr to data
+        fcnt++;
+        phase = 0;
+      }
+    }
+
+    if(fcnt >= FontLen || !row.length) break;
   }
 
-  data;
+  fout.rawWrite([fbbx, fbby, bytesPerLine]);
+  fout.rawWrite(data);
 }
