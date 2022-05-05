@@ -1,8 +1,8 @@
 *.o
 *.obj
+*.bin
 *.elf
 *.efi
 *.iso
-*.img
 *.bak
 /work

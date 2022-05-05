@@ -2,6 +2,9 @@
 
 ## kernel
 
+コンソール用フォントに[Terminus Font 4.49.1](http://terminus-font.sourceforge.net)を使用しています．
+このフォントはSIL Open Font License, Version 1.1に基いています．
+
 ## loader
 
 OS本体を起動させる為のUEFIアプリケーション．

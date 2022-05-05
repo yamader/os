@@ -2,6 +2,8 @@ module kernel.main;
 import loader.memmap;
 import kernel.framebuf;
 import kernel.graphics;
+import kernel.font;
+import kernel.console;
 
 extern(C):
 
@@ -28,5 +30,10 @@ void kernel_main(
     ref const MemMap memmap,
     ref const FBConf fb_efi) {
   auto fb = FBFullColor(&fb_efi);
-  fb.FlushScr;
+  auto console = Console(
+    fb,
+    Vec2D!uint(0, 0),
+    Vec2D!uint(fb.horiz, fb.vert),
+    FontConsole);
+  //console.
 }
