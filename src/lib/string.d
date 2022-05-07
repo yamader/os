@@ -1,8 +1,9 @@
 module loader.string;
 
 private
-void memcpy(T)(T* buf, T* src, size_t len) {
-  foreach(i; 0 .. len) buf[i] = src[i];
+void memcpy(T)(T* dst, T* src, size_t len) {
+  import lib.libcfunc : memcpy;
+  memcpy(cast(void*)dst, cast(void*)src, len);
 }
 
 // 0を含まない長さを返す

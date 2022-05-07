@@ -5,7 +5,7 @@ LINKFLAGS   += /subsystem:efi_application /entry:${ENTRYPOINT}
 
 TARGET      := loader.efi
 ENTRYPOINT  := UefiMain
-OBJS        := main.obj efi.obj string.obj support.obj
+OBJS        := main.obj efi.obj string.obj libcfunc.obj
 
 all: ${TARGET}
 

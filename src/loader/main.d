@@ -5,9 +5,10 @@ import kernel.framebuf;
 import loader.efi;
 import loader.memmap;
 
+enum YAMADOS_LOADER_VERSION = "v0.1.0";
+
 extern(C):
 
-enum YAMADOS_LOADER_VERSION = "v0.1.0";
 enum PRINT_STRING_BUF_SIZE = 100;
 
 __gshared {

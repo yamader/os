@@ -7,7 +7,9 @@ LDFLAGS     += --entry=${ENTRYPOINT} --image-base=${IMG_BASE} --static
 TARGET      := kernel.elf
 ENTRYPOINT  := kernel_entry
 IMG_BASE    := 0x100000
-OBJS        := main.o framebuf.o graphics.o console.o font.o ter-u16b.o support.o
+OBJS        := main.o libcfunc.o support.o \
+               framebuf.o graphics.o console.o font.o \
+               ter-u16b.o
 
 all: ${TARGET}
 
