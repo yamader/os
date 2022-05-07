@@ -35,5 +35,4 @@ void kernel_main(
     Vec2D!uint(0, 0),
     Vec2D!uint(fb.horiz, fb.vert),
     FontConsole);
-  //console.
 }

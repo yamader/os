@@ -12,9 +12,12 @@ struct SimpleFont {
   const ubyte width,
               height,
               bytesPerLine;
-  private const ubyte[] data;
 
-  void* getChr(char c) const {
+private:
+  const ubyte[256] data;
+}
+
+void* GetChr(ref const SimpleFont f, char c) {
+  with(f)
     return cast(void*)data.ptr + (bytesPerLine * height) * c;
-  }
 }
