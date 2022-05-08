@@ -5,16 +5,16 @@ void __assert() {}
 
 void __chkstk() {} // loader
 
-void* memset(void* _dst, int _val, size_t len) {
-  auto dst = cast(ubyte*)_dst;
-  auto val = cast(ubyte)_val;
-  while(len--) *dst++ = val;
+void* memset(void* dst, int val, size_t len) {
+  auto _dst = dst;
+  while(len--)
+    *cast(ubyte*)dst++ = cast(ubyte)val;
   return _dst;
 }
 
-void* memcpy(void* _dst, void* _src, size_t len) {
-  auto dst = cast(ubyte*)_dst;
-  auto src = cast(ubyte*)_src;
-  while(len--) *dst++ = *src++;
+void* memcpy(void* dst, void* src, size_t len) {
+  auto _dst = dst;
+  while(len--)
+    *cast(ubyte*)dst++ = *cast(ubyte*)src++;
   return _dst;
 }

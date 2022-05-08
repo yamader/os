@@ -1,5 +1,5 @@
 module loader.memmap;
-import loader.efi: UINTN;
+import loader.efi: UINTN, UINT32;
 
 extern(C):
 
@@ -9,5 +9,5 @@ struct MemMap {
   void* buf;
   UINTN key;
   UINTN desc_size;
-  uint desc_ver;
+  UINT32 desc_ver;
 }

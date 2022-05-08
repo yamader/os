@@ -2,8 +2,7 @@ module loader.string;
 
 private
 void memcpy(T)(T* dst, T* src, size_t len) {
-  import lib.libcfunc : memcpy;
-  memcpy(cast(void*)dst, cast(void*)src, len);
+  foreach(i; 0 .. len) dst[i] = src[i];
 }
 
 // 0を含まない長さを返す
