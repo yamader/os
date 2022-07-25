@@ -13,8 +13,8 @@ OBJS        := main.o libcfunc.o support.o \
 
 all: ${TARGET}
 
-release: LDCFLAGS += --O3 --release
-release: LDFLAGS += --strip-all
+release: LDCFLAGS += -O3 --release
+release: LDFLAGS += -O2 --as-needed --strip-all
 release: all Makefile
 
 ${TARGET}: ${OBJS} Makefile

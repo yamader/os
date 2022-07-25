@@ -9,7 +9,8 @@ OBJS        := main.obj efi.obj string.obj libcfunc.obj
 
 all: ${TARGET}
 
-release: LDCFLAGS += --O3 --release
+release: LDCFLAGS += -O3 --release
+release: LDFLAGS += /O2
 release: all Makefile
 
 ${TARGET}: ${OBJS} Makefile
