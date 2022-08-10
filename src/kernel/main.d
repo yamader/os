@@ -78,8 +78,11 @@ void kernel_main(
 `, map_size, cast(ulong)buf, buf_size, desc_size);
 
   initSegment;
-  printk("gdt : 0x%x\n", cast(ulong)&gdt);
+  printk("\ngdt : 0x%x\n", cast(ulong)&gdt);
   printk("  gdt[0] { %x }\n", gdt[0].storage);
   printk("  gdt[1] { %x }\n", gdt[1].storage);
   printk("  gdt[2] { %x }\n", gdt[2].storage);
+
+  printk("\npml4tab head : 0x%x\n", cast(ulong)&pml4tab[0]);
+  initPaging;
 }

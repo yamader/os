@@ -1,5 +1,35 @@
 module kernel.paging;
 
+// Paging
+
+enum ulong
+  PageSize4K = 4096,
+  PageSize2M = 512 * PageSize4K,
+  PageSize1G = 512 * PageSize2M,
+  PageDirs = 64;
+
+__gshared {
+  align(PageSize4K):
+    ulong[512] pml4tab;
+    ulong[512] pdptab;
+    ulong[512][PageDirs] pagedir;
+}
+
+extern(C) void setcr3(ulong v);
+void initPaging() {
+  pml4tab[0] = cast(ulong)&pdptab[0] | 0x003;
+  foreach(i; 0 .. PageDirs) {
+    pdptab[i] = cast(ulong)&pagedir[i] | 0x003;
+    foreach(j; 0 .. 512) {
+      pagedir[i][j] = i*PageSize1G + j*PageSize2M | 0x083;
+    }
+  }
+  auto pml4tabHd = cast(ulong)&pml4tab[0];
+  setcr3(pml4tabHd); // インラインアセンブラが使えない
+}
+
+// x64 Segment
+
 __gshared {
   SegmDesc[3] gdt = void;
 }
