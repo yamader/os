@@ -7,14 +7,15 @@ LDFLAGS     += --entry=${ENTRYPOINT} --image-base=${IMG_BASE} --static
 TARGET      := kernel.elf
 ENTRYPOINT  := kernel_entry
 IMG_BASE    := 0x100000
-OBJS        := main.o libcfunc.o support.o \
+OBJS        := main.o libcfunc.o support.o asm.o \
+               paging.o mem.o \
                framebuf.o graphics.o console.o font.o \
                ter-u16b.o
 
 all: ${TARGET}
 
 release: LDCFLAGS += -O3 --release
-release: LDFLAGS += -O2 --as-needed --strip-all
+release: LDFLAGS += -O2 --as-needed --strip-debug
 release: all Makefile
 
 ${TARGET}: ${OBJS} Makefile
@@ -25,6 +26,9 @@ ${TARGET}: ${OBJS} Makefile
 
 %.o: ../lib/%.d Makefile
 	${LDC} ${LDCFLAGS} --of=$@ -c $<
+
+%.o: %.s Makefile
+	nasm -f elf64 -o $@ $<
 
 %.bin: %.bdf
 	../../tools/bdf2bin.d $< $@

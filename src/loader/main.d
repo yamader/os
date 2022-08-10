@@ -284,7 +284,7 @@ EFI_STATUS UefiMain(EFI_HANDLE ImageHandle, EFI_SYSTEM_TABLE* SystemTable) {
     asm {
       mov RDI, mmp;
       mov RSI, fbp;
-      call kernel_entry;
+      jmp kernel_entry;
     }
   }
 
