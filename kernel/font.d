@@ -2,18 +2,17 @@ module kernel.font;
 
 extern(C):
 
-alias FontConsole = _binary_ter_u16b_bin_start;
-
-private extern {
-  const SimpleFont _binary_ter_u16b_bin_start;
+// objcopied font assets
+extern immutable {
+  SimpleFont ter_u16b;
 }
 
-struct SimpleFont {
-  const ubyte width,
-              height,
-              bytesPerLine;
+alias FontConsole = ter_u16b;
 
-private:
+struct SimpleFont {
+  const ubyte width, height, bytesPerLine;
+
+ private:
   const ubyte[256] data;
 }
 

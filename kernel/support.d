@@ -1,9 +1,9 @@
+module kernel.support;
+
 extern(C):
 
 version(assert)
 void __assert() {}
-
-void __chkstk() {} // loader
 
 void* memset(void* dest, int val, size_t n) {
   auto dp = cast(ubyte*) dest,

@@ -9,6 +9,8 @@ enum YAMADOS_LOADER_VERSION = "v0.1.0";
 
 extern(C):
 
+void __chkstk() {} //
+
 enum PRINT_STRING_BUF_SIZE = 100;
 
 __gshared {

@@ -5,7 +5,7 @@ import kernel.font;
 
 private
 void memcpy(T)(T* dst, T* src, size_t len) {
-  import lib.libcfunc : memcpy;
+  import kernel.support: memcpy;
   memcpy(cast(void*)dst, cast(void*)src, len);
 }
 
